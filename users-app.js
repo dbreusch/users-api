@@ -6,7 +6,7 @@ const passport = require("passport");
 // const passportLocalMongoose = require("passport-local-mongoose");
 
 const HttpError = require('./models/http-error');
-const userRoutes = require('./routes/user-routes');
+const userRoutes = require('./routes/users-routes');
 
 // define port from environment or default to 3000
 const port = process.env.PORT || 3000
