@@ -20,7 +20,7 @@ router.post(
     check('password')
       .isLength({ min: 6 })
   ],
-  userControllers.createUser
+  userControllers.registerUser
 );
 
 // /login: handle user login requests
@@ -36,7 +36,7 @@ router.post(
       .not()
       .isEmpty()
   ],
-  userControllers.verifyUser
+  userControllers.loginUser
 );
 
 module.exports = router;
