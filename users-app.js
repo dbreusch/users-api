@@ -1,8 +1,8 @@
 // users-api: main app
 const express = require("express");
 const mongoose = require('mongoose');
-const session = require('express-session');
-const passport = require("passport");
+// const session = require('express-session');
+// const passport = require("passport");
 // const passportLocalMongoose = require("passport-local-mongoose");
 
 const HttpError = require('./models/http-error');
@@ -17,16 +17,16 @@ const app = express();
 // convert POST/PUT requests to JSON
 app.use(express.json());
 
-// setup session configuration
-app.use(session({
-  secret: "Our little secret.",
-  resave: false,
-  saveUninitialized: false
-}));
+// // setup session configuration
+// app.use(session({
+//   secret: "Our little secret.",
+//   resave: false,
+//   saveUninitialized: false
+// }));
 
-// initialize authentication and session handling
-app.use(passport.initialize());
-app.use(passport.session());
+// // initialize authentication and session handling
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // handle CORS
 app.use((req, res, next) => {
@@ -57,7 +57,7 @@ app.use((err, req, res, next) => {
   }
 
   res.status(err.code || 500);
-  res.json({ message: error.message || 'users-app: Something went wrong.' });
+  res.json({ message: err.message || 'users-app: Something went wrong.' });
 });
 
 // connect to database, then start listening!
@@ -65,12 +65,12 @@ mongoose.connect(
   `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
+    useUnifiedTopology: true
   },
   (err) => {
     if (err) {
       console.log('Connection to MongoDB failed!');
+      console.log(err);
     } else {
       console.log('Successfully connected to MongoDB')
       console.log(`Listening on port ${port}`)

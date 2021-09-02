@@ -1,16 +1,16 @@
 // auth-api: action functions
 const { validationResult } = require('express-validator');
 const axios = require('axios');
-const passport = require("passport");
+// const passport = require("passport");
 
 // const { createAndThrowError, createError } = require('../helpers/error');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
 
-// add passport authentication middleware and sessions
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// // add passport authentication middleware and sessions
+// passport.use(User.createStrategy());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
 
 // utility functions start here
 const getHashedPassword = async (password) => {
@@ -101,6 +101,8 @@ const registerUser = async (req, res, next) => {
     return next(new HttpError('Signing up user failed, please try again.', 500));
   }
 
+  console.log("Created new user!");
+
   // let token;
   // try {
   //   token = jwt.sign(
@@ -114,18 +116,20 @@ const registerUser = async (req, res, next) => {
   let token;
   try {
     // console.log(password, createdUser);
+    console.log("Attempting to get new token");
     const token = await getTokenForUser(
       password,
       createdUser.password,
       createdUser.name
     );
-    res.status(200).json({ token: token, userId: createdUser.id });
   } catch (err) {
+    console.log("Create token error");
     next(err);
   }
 
+  // res.status(200).json({ token: token, userId: createdUser.id });
   res.status(201).json({
-    userId: createdUser.name,
+    userId: createdUser.id,
     email: createdUser.email,
     token: token
   });
