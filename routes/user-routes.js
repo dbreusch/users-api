@@ -1,7 +1,7 @@
 // users-api: define app routes
 const express = require('express');
 
-const userActions = require('../controllers/user-actions');
+const userActions = require('../controllers/user-controllers');
 
 // initialize router
 const router = express.Router();
