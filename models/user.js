@@ -1,7 +1,7 @@
 // auth-api: database schema
 const mongoose = require('mongoose');
 // const passport = require("passport");
-const passportLocalMongoose = require("passport-local-mongoose");
+// const passportLocalMongoose = require("passport-local-mongoose");
 
 const Schema = mongoose.Schema;
 
@@ -13,6 +13,6 @@ const userSchema = new Schema({
   active: Boolean
 });
 
-userSchema.plugin(passportLocalMongoose);
+// userSchema.plugin(passportLocalMongoose);
 
 module.exports = mongoose.model('User', userSchema);
