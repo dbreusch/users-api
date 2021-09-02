@@ -13,6 +13,8 @@ const User = require('../models/user');
 // passport.deserializeUser(User.deserializeUser());
 
 // utility functions start here
+
+// get a hashed password from auth-api
 const getHashedPassword = async (password) => {
   try {
     const response = await axios.get(
@@ -25,6 +27,7 @@ const getHashedPassword = async (password) => {
   }
 };
 
+// get a JWT token from auth-api
 const getTokenForUser = async (password, hashedPassword, uid) => {
   try {
     const response = await axios.post(
@@ -58,10 +61,18 @@ const getUsers = async (req, res, next) => {
 
 // create/register a new user
 const registerUser = async (req, res, next) => {
+  // // completely unnecessary use of session cookie data to demonstrate how it works!
+  // if (!req.session.views) {
+  //   req.session.views = 1;
+  // } else {
+  //   req.session.views++;
+  // }
+  // console.log(`${req.session.views} registration(s)`);
+
   // validate inputs
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors);
+    // console.log(errors);
     return next(HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
@@ -86,6 +97,7 @@ const registerUser = async (req, res, next) => {
     return next(err);
   }
 
+  // create a new User object
   const createdUser = new User({
     name,
     email,
@@ -94,29 +106,20 @@ const registerUser = async (req, res, next) => {
     active: true
   });
 
+  // save User to the db
   try {
     await createdUser.save();
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return next(new HttpError('Signing up user failed, please try again.', 500));
   }
 
-  console.log("Created new user!");
+  // console.log("Created new user!");
 
-  // let token;
-  // try {
-  //   token = jwt.sign(
-  //     { userId: createdUser.id, email: createdUser.email },
-  //     'supersecret_dont_share',
-  //     { expiresIn: '1h' }
-  //   );
-  // } catch (err) {
-  //   return next(new HttpError('Signing up user failed, please try again.', 500));
-  // }
+  // get a new JWT token for the new user's session
   let token;
   try {
     // console.log(password, createdUser);
-    console.log("Attempting to get new token");
     const token = await getTokenForUser(
       password,
       createdUser.password,
@@ -124,10 +127,9 @@ const registerUser = async (req, res, next) => {
     );
   } catch (err) {
     console.log("Create token error");
-    next(err);
+    return next(err);
   }
 
-  // res.status(200).json({ token: token, userId: createdUser.id });
   res.status(201).json({
     userId: createdUser.id,
     email: createdUser.email,
@@ -146,6 +148,7 @@ const loginUser = async (req, res, next) => {
 
   const { email, password } = req.body;
 
+  // check for existing user
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });
@@ -153,32 +156,13 @@ const loginUser = async (req, res, next) => {
     return next(new HttpError('Logging in failed, please try again later.', 500));
   }
 
+  // error if user does not exist
   if (!existingUser) {
     return next(new HttpError('Invalid credentials, could not log you in.', 403));
   }
 
-  // *** Following password checking is now part of getTokenForUser
-  // let isValidPassword = false;
-  // try {
-  //   isValidPassword = await bcrypt.compare(password, existingUser.password);
-  // } catch (err) {
-  //   return next(new HttpError('Could not log you in, please check your credentials and try again.', 500));
-  // }
-
-  // if (!isValidPassword) {
-  //   return next(new HttpError('Invalid credentials, could not log you in.', 403));
-  // }
-
+  // get new session token for user
   let token;
-  // try {
-  //   token = jwt.sign(
-  //     { userId: existingUser.id, email: existingUser.email },
-  //     'supersecret_dont_share',
-  //     { expiresIn: '1h' }
-  //   );
-  // } catch (err) {
-  //   return next(new HttpError('Logging in failed, please try again.', 500));
-  // }
   try {
     // console.log(password, createdUser);
     const token = await getTokenForUser(
@@ -186,17 +170,17 @@ const loginUser = async (req, res, next) => {
       existingUser.password,
       existingUser.name
     );
-    res.status(200).json({ token: token, userId: existingUser.id });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 
-  res.json({
+  res.status(201).json({
     userId: existingUser.id,
     email: existingUser.email,
     token: token
   });
 };
+
 exports.registerUser = registerUser;
 exports.loginUser = loginUser;
 exports.getUsers = getUsers;

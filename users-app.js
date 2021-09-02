@@ -1,7 +1,8 @@
 // users-api: main app
 const express = require("express");
 const mongoose = require('mongoose');
-// const session = require('express-session');
+const session = require('express-session');
+const MemoryStore = require('memorystore')(session);
 // const passport = require("passport");
 // const passportLocalMongoose = require("passport-local-mongoose");
 
@@ -9,7 +10,7 @@ const HttpError = require('./models/http-error');
 const userRoutes = require('./routes/users-routes');
 
 // define port from environment or default to 3000
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 
 // initialize express
 const app = express();
@@ -17,14 +18,18 @@ const app = express();
 // convert POST/PUT requests to JSON
 app.use(express.json());
 
-// // setup session configuration
-// app.use(session({
-//   secret: "Our little secret.",
-//   resave: false,
-//   saveUninitialized: false
-// }));
+// // setup session configuration (cookie)
+app.use(session({
+  cookie: { maxAge: 86400000 },
+  secret: process.env.USER_SESSIONKEY,
+  resave: false,
+  saveUninitialized: false,
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  })
+}));
 
-// // initialize authentication and session handling
+// // initialize passport authentication and session handling
 // app.use(passport.initialize());
 // app.use(passport.session());
 
@@ -53,7 +58,7 @@ app.use((err, req, res, next) => {
   // console.log(err);
 
   if (res.headerSent) { // just return/goto next if a response already exists
-    return next(error);
+    return next(err);
   }
 
   res.status(err.code || 500);
@@ -72,8 +77,8 @@ mongoose.connect(
       console.log('Connection to MongoDB failed!');
       console.log(err);
     } else {
-      console.log('Successfully connected to MongoDB')
-      console.log(`Listening on port ${port}`)
+      console.log('Successfully connected to MongoDB');
+      console.log(`Listening on port ${port}`);
       app.listen(port);
     }
   }
