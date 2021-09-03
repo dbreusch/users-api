@@ -68,10 +68,10 @@ app.use((err, req, res, next) => {
 // connect to database, then start listening!
 mongoose.connect(
   `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  },
+  // {
+  //   useNewUrlParser: true,
+  //   useUnifiedTopology: true
+  // },
   (err) => {
     if (err) {
       console.log('Connection to MongoDB failed!');
