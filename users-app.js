@@ -9,8 +9,8 @@ const MemoryStore = require('memorystore')(session);
 const HttpError = require('./models/http-error');
 const userRoutes = require('./routes/users-routes');
 
-// define port from environment or default to 3000
-const port = process.env.PORT || 3000;
+// define port from environment or default to 3001
+const port = process.env.PORT || 3001;
 
 // initialize express
 const app = express();
