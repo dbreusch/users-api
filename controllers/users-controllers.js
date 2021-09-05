@@ -120,7 +120,7 @@ const registerUser = async (req, res, next) => {
   let token;
   try {
     // console.log(password, createdUser);
-    const token = await getTokenForUser(
+    token = await getTokenForUser(
       password,
       createdUser.password,
       createdUser.name
@@ -164,8 +164,7 @@ const loginUser = async (req, res, next) => {
   // get new session token for user
   let token;
   try {
-    // console.log(password, createdUser);
-    const token = await getTokenForUser(
+    token = await getTokenForUser(
       password,
       existingUser.password,
       existingUser.name
