@@ -9,7 +9,7 @@ const dotenv = require('dotenv');
 
 const HttpError = require('./models/http-error');
 const userRoutes = require('./routes/users-routes');
-const getEnvVar = require('./helpers/getEnvVar');
+const { getEnvVar } = require('./helpers/getEnvVar');
 
 dotenv.config();
 

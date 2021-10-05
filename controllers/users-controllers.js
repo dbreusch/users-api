@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 // const { createAndThrowError, createError } = require('../helpers/error');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
-const getEnvVar = require('./helpers/getEnvVar');
+const { getEnvVar } = require('./helpers/getEnvVar');
 
 dotenv.config();
 
@@ -24,18 +24,18 @@ const getHashedPassword = async (password) => {
   try {
     const response = await axios.get(
       `http://${authApiAddress}/hashed-pw/${password}`
-      );
-      return response.data.hashed;
-    } catch (err) {
-      const code = (err.response && err.response.status) || 500;
-      createAndThrowError(err.message || 'Failed to create user.', code);
-    }
-  };
+    );
+    return response.data.hashed;
+  } catch (err) {
+    const code = (err.response && err.response.status) || 500;
+    createAndThrowError(err.message || 'Failed to create user.', code);
+  }
+};
 
-  // get a JWT token from auth-api
-  const getTokenForUser = async (password, hashedPassword, uid) => {
-    const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
-    try {
+// get a JWT token from auth-api
+const getTokenForUser = async (password, hashedPassword, uid) => {
+  const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
+  try {
     const response = await axios.post(
       `http://${authApiAddress}/token`,
       {
