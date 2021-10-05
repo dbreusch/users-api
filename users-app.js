@@ -3,11 +3,15 @@ const express = require("express");
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MemoryStore = require('memorystore')(session);
+const dotenv = require('dotenv');
 // const passport = require("passport");
 // const passportLocalMongoose = require("passport-local-mongoose");
 
 const HttpError = require('./models/http-error');
 const userRoutes = require('./routes/users-routes');
+const getEnvVar = require('./helpers/getEnvVar');
+
+dotenv.config();
 
 // define port from environment or default to 3001
 const port = process.env.PORT || 3001;
@@ -18,10 +22,11 @@ const app = express();
 // convert POST/PUT requests to JSON
 app.use(express.json());
 
-// // setup session configuration (cookie)
+// setup session configuration (cookie)
+const userSessionKey = getEnvVar('USER_SESSIONKEY');
 app.use(session({
   cookie: { maxAge: 86400000 },
-  secret: process.env.USER_SESSIONKEY,
+  secret: userSessionKey,
   resave: false,
   saveUninitialized: false,
   store: new MemoryStore({
@@ -66,8 +71,16 @@ app.use((err, req, res, next) => {
 });
 
 // connect to database, then start listening!
+
+// first, try to get variables values from environment.
+// if any are missing, getEnvVar will throw an error 500.
+const mongoUser = getEnvVar('MONGODB_USERNAME');
+const mongoPassword = getEnvVar('MONGODB_PASSWORD');
+const mongoURL = getEnvVar('MONGODB_URL');
+const mongoName = getEnvVar('MONGODB_NAME');
+
 mongoose.connect(
-  `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}?retryWrites=true&w=majority`,
+  `mongodb+srv://${mongoUser}:${mongoPassword}@${mongoURL}/${mongoName}?retryWrites=true&w=majority`,
   // {
   //   useNewUrlParser: true,
   //   useUnifiedTopology: true

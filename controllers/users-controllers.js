@@ -1,11 +1,15 @@
 // auth-api: action functions
 const { validationResult } = require('express-validator');
 const axios = require('axios');
+const dotenv = require('dotenv');
 // const passport = require("passport");
 
 // const { createAndThrowError, createError } = require('../helpers/error');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+const getEnvVar = require('./helpers/getEnvVar');
+
+dotenv.config();
 
 // // add passport authentication middleware and sessions
 // passport.use(User.createStrategy());
@@ -16,22 +20,24 @@ const User = require('../models/user');
 
 // get a hashed password from auth-api
 const getHashedPassword = async (password) => {
+  const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
   try {
     const response = await axios.get(
-      `http://${process.env.AUTH_API_ADDRESS}/hashed-pw/${password}`
-    );
-    return response.data.hashed;
-  } catch (err) {
-    const code = (err.response && err.response.status) || 500;
-    createAndThrowError(err.message || 'Failed to create user.', code);
-  }
-};
+      `http://${authApiAddress}/hashed-pw/${password}`
+      );
+      return response.data.hashed;
+    } catch (err) {
+      const code = (err.response && err.response.status) || 500;
+      createAndThrowError(err.message || 'Failed to create user.', code);
+    }
+  };
 
-// get a JWT token from auth-api
-const getTokenForUser = async (password, hashedPassword, uid) => {
-  try {
+  // get a JWT token from auth-api
+  const getTokenForUser = async (password, hashedPassword, uid) => {
+    const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
+    try {
     const response = await axios.post(
-      `http://${process.env.AUTH_API_ADDRESS}/token`,
+      `http://${authApiAddress}/token`,
       {
         password: password,
         hashedPassword: hashedPassword,
