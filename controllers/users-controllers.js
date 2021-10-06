@@ -7,7 +7,7 @@ const dotenv = require('dotenv');
 // const { createAndThrowError, createError } = require('../helpers/error');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
-const { getEnvVar } = require('./helpers/getEnvVar');
+const { getEnvVar } = require('../helpers/getEnvVar');
 
 dotenv.config();
 
