@@ -4,11 +4,16 @@ const { createAndThrowError } = require('./error');
 const getEnvVar = (envVarName) => {
   let envVar;
   try {
-    envVar = `process.env.${envVarName}`;
-    return envVar;
+    envVar = process.env[envVarName];
+    // console.log(`${envVarName} ${envVar}`);
+    if (envVar !== undefined) {
+      return envVar;
+    } else {
+      createAndThrowError(`Environment variable ${envVarName} not found.`, 500);
+    }
   } catch (err) {
-    createAndThrowError(`Environment variable ${envVarName} not found.`, 500);
+    createAndThrowError(`Error accessing environment variable ${envVarName}.`, 500);
   }
-}
+};
 
 exports.getEnvVar = getEnvVar;
