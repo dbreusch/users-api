@@ -1,4 +1,7 @@
 // users-api: main app
+const fs = require('fs');
+const path = require('path');
+
 const express = require("express");
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -19,8 +22,11 @@ const port = process.env.PORT || 3001;
 // initialize express
 const app = express();
 
-// convert POST/PUT requests to JSON
+// parse incoming POST requests with JSON payloads (default type application/json)
 app.use(express.json());
+
+// parse incoming POST requests with urlencoded payloads (default type application/x-www-form-urlencoded)
+app.use(express.urlencoded({ extended: true }));
 
 // setup session configuration (cookie)
 const userSessionKey = getEnvVar('USER_SESSIONKEY');
@@ -37,6 +43,9 @@ app.use(session({
 // // initialize passport authentication and session handling
 // app.use(passport.initialize());
 // app.use(passport.session());
+
+// handle image file requests
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 // handle CORS
 app.use((req, res, next) => {
@@ -61,13 +70,18 @@ app.use((req, res, next) => {
 // generic error handler (because there are FOUR args)
 app.use((err, req, res, next) => {
   // console.log(err);
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
 
   if (res.headerSent) { // just return/goto next if a response already exists
     return next(err);
   }
 
   res.status(err.code || 500);
-  res.json({ message: err.message || 'users-app: Something went wrong.' });
+  res.json({ message: err.message || 'users-app/generic error handler: Something went wrong.' });
 });
 
 // connect to database, then start listening!
