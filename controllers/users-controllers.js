@@ -4,7 +4,7 @@ const axios = require('axios');
 const dotenv = require('dotenv');
 // const passport = require("passport");
 
-// const { createAndThrowError, createError } = require('../helpers/error');
+const { createAndThrowError, createError } = require('../helpers/error');
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
 const { getEnvVar } = require('../helpers/getEnvVar');
@@ -75,48 +75,84 @@ const registerUser = async (req, res, next) => {
   // }
   // console.log(`${req.session.views} registration(s)`);
 
+  // console.log('Print req.file.path');
+  // console.log(req.file.path);
+
+  // console.log('Print req.body');
+  // console.log(req.body);
+  // console.log(req.body.email);
+
+  // const obj = Object.assign({}, req.body);
+  // console.log('Print obj');
+  // console.log(obj);
+  // console.log(obj.email);
+
   // validate inputs
+  // console.log('Validating data in req.body');
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // console.log(errors);
-    return next(HttpError('Invalid inputs passed, please check your data.', 422));
+    console.log('Validation of req.body failed');
+    console.log(errors);
+    return next(new HttpError('Invalid inputs passed, please check your data.', 422));
   }
 
   // check for an existing user
-  const { name, email, password } = req.body;
+  console.log('Getting data from req.body');
+  try {
+    // const { name, email, password } = req.body;  // DOES NOT WORK!! (10/8/21)
+    name = req.body.name;
+    email = req.body.email;
+    password = req.body.password;
+ } catch (err) {
+    console.log('Error in req.body');
+    console.log(err);
+    return next(new HttpError('Signing up user failed, please try again.', 500));
+  }
+  // console.log(`name: ${name} email: ${email} password: ${password}`);
+
   let existingUser;
   try {
+    // console.log('Checking for existing user');
     existingUser = await User.findOne({ email: email });
   } catch (err) {
+    console.log('Error checking for existing user');
+    console.log(err);
     return next(new HttpError('Signing up failed, please try again later.', 500));
   }
-
   if (existingUser) {
+    console.log('Existing user found');
     return next(new HttpError('User exists already, please login instead.', 422));
   }
 
   // hash the user's password
   let hashedPassword;
   try {
+    // console.log('Hashing password');
     hashedPassword = await getHashedPassword(password);
   } catch (err) {
+    console.log('Password hashing failed');
+    console.log(err);
     return next(err);
   }
 
   // create a new User object
+  // console.log('Create new User object');
   const createdUser = new User({
     name,
     email,
     password: hashedPassword,
+    image: req.file.path,
     type: "standard",
     active: true
   });
 
   // save User to the db
   try {
+    // console.log('Trying to save new User object');
     await createdUser.save();
   } catch (err) {
-    // console.log(err);
+    console.log('Error saving new User object');
+    console.log(err);
     return next(new HttpError('Signing up user failed, please try again.', 500));
   }
 
@@ -125,7 +161,7 @@ const registerUser = async (req, res, next) => {
   // get a new JWT token for the new user's session
   let token;
   try {
-    // console.log(password, createdUser);
+    // console.log('Get token for user');
     token = await getTokenForUser(
       password,
       createdUser.password,
@@ -133,6 +169,7 @@ const registerUser = async (req, res, next) => {
     );
   } catch (err) {
     console.log("Create token error");
+    console.log(err);
     return next(err);
   }
 

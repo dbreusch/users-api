@@ -120,3 +120,5 @@ dist
 # local, possibly sensitive environment variable files
 env/
 .env*
+
+/uploads
