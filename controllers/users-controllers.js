@@ -97,7 +97,7 @@ const registerUser = async (req, res, next) => {
   }
 
   // check for an existing user
-  console.log('Getting data from req.body');
+  // console.log('Getting data from req.body');
   try {
     // const { name, email, password } = req.body;  // DOES NOT WORK!! (10/8/21)
     name = req.body.name;
@@ -137,13 +137,16 @@ const registerUser = async (req, res, next) => {
 
   // create a new User object
   // console.log('Create new User object');
+  const currDate = new Date();
   const createdUser = new User({
     name,
     email,
     password: hashedPassword,
     image: req.file.path,
     type: "standard",
-    active: true
+    active: true,
+    dateAdded: currDate,
+    lastLogin: currDate
   });
 
   // save User to the db
@@ -214,6 +217,18 @@ const loginUser = async (req, res, next) => {
     );
   } catch (err) {
     return next(err);
+  }
+
+  // update last login data
+  const currDate = new Date();
+  existingUser.lastLogin = currDate;
+  try {
+    // console.log('Trying to update User object');
+    await existingUser.save();
+  } catch (err) {
+    console.log('Error updating User object');
+    console.log(err);
+    return next(new HttpError('Updating user lastLogin failed.', 500));
   }
 
   res.status(201).json({

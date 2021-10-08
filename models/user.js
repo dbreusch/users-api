@@ -13,7 +13,9 @@ const userSchema = new Schema({
   password: { type: String, required: true, minlength: 6 },
   image: { type: String, required: true },
   type:  { type: String, required: false },
-  active: { type: Boolean, required: false}
+  active: { type: Boolean, required: false},
+  dateAdded: Date,
+  lastLogin: Date
 });
 
 // userSchema.plugin(passportLocalMongoose);
