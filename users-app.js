@@ -70,6 +70,8 @@ app.use((req, res, next) => {
 // generic error handler (because there are FOUR args)
 app.use((err, req, res, next) => {
   // console.log(err);
+
+  // if a file path is included in request, remove it
   if (req.file) {
     fs.unlink(req.file.path, (err) => {
       console.log(err);
@@ -95,10 +97,6 @@ const mongoName = getEnvVar('MONGODB_NAME');
 
 mongoose.connect(
   `mongodb+srv://${mongoUser}:${mongoPassword}@${mongoURL}/${mongoName}?retryWrites=true&w=majority`,
-  // {
-  //   useNewUrlParser: true,
-  //   useUnifiedTopology: true
-  // },
   (err) => {
     if (err) {
       console.log('Connection to MongoDB failed!');

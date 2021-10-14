@@ -1,4 +1,4 @@
-// auth-api: action functions
+// users-api: action functions
 const { validationResult } = require('express-validator');
 const axios = require('axios');
 const dotenv = require('dotenv');
@@ -231,6 +231,7 @@ const loginUser = async (req, res, next) => {
     return next(new HttpError('Updating user lastLogin failed.', 500));
   }
 
+  // return userid, email and login token
   res.status(201).json({
     userId: existingUser.id,
     email: existingUser.email,

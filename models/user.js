@@ -1,4 +1,4 @@
-// auth-api: database schema
+// users-api: database schema
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
@@ -12,10 +12,10 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 6 },
   image: { type: String, required: true },
-  type:  { type: String, required: false },
-  active: { type: Boolean, required: false},
-  dateAdded: Date,
-  lastLogin: Date
+  type: { type: String, required: false },
+  active: { type: Boolean, required: false },
+  dateAdded: { type: Date, required: false },
+  lastLogin: { type: Date, required: false }
 });
 
 // userSchema.plugin(passportLocalMongoose);

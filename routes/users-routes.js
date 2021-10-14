@@ -8,6 +8,8 @@ const fileUpload = require('../middleware/file-upload');
 // initialize router
 const router = express.Router();
 
+// define available routes
+
 // return a list of users
 router.get('/', usersControllers.getUsers);
 
@@ -33,14 +35,14 @@ router.post(
   '/login',
   // Validation will normally be handled by frontend but still having it here is
   // useful for other clients.
-  // [
-  //   check('email')
-  //     .isEmail()
-  //     .normalizeEmail(),
-  //   check('password')
-  //     .not()
-  //     .isEmpty()
-  // ],
+  [
+    check('email')
+      .isEmail()
+      .normalizeEmail(),
+    check('password')
+      .not()
+      .isEmpty()
+  ],
   usersControllers.loginUser
 );
 

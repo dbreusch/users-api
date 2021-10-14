@@ -1,0 +1,17 @@
+GPS Tracks : users-api
+
+Core files:
+----------
+users-app.js
+
+controllers/users-controllers.js
+
+helpers/error.js
+helpers/getEnvVar.js
+
+middleware/file-upload.js
+
+models/http-error.js
+models/user.js
+
+routes/users-routes.js
