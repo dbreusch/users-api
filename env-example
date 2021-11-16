@@ -1,0 +1,25 @@
+# Address for the auth_api service.
+
+# use this when in a Docker network (manually or via docker-compose)
+# AUTH_API_ADDRESS=auth:8080
+
+# use this when running app directly (node or nodemon)
+AUTH_API_ADDRESS=localhost:8080
+
+# User session key for express-session (string).
+USER_SESSIONKEY=
+
+# MongoDB login username.
+MONGODB_USERNAME=
+
+# MongoDB login password.
+MONGODB_PASSWORD=
+
+# MongoDB cluster URL.
+MONGODB_URL=
+
+# MongoDB database name for this application
+MONGODB_NAME=
+
+# Listening port for this service (3001).
+PORT=

@@ -2,9 +2,10 @@
 A simple API to register and login users.
 
 ## Environment variables:
+Copy env-example to .env and update with your local settings.
 
 ### AUTH_API_ADDRESS
-Address for the auth_api service (auth:8080).
+Address for the auth_api service.  Value depends on whether you are running the app directly (with node, nodemon use localhost:8080) or via docker/docker-compose (use auth:8080).
 
 ### MONGODB_USERNAME
 MongoDB login username.

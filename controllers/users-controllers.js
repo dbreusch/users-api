@@ -21,6 +21,7 @@ dotenv.config();
 // get a hashed password from auth-api
 const getHashedPassword = async (password) => {
   const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
+  // console.log(`AUTH_API_ADDRESS = ${authApiAddress}`);
   try {
     const response = await axios.get(
       `http://${authApiAddress}/hashed-pw/${password}`
