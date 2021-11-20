@@ -63,7 +63,7 @@ app.use(userRoutes);
 
 // this function only runs if nothing else responded first
 app.use((req, res, next) => {
-  const error = new HttpError('Could not find this route.', 404);
+  const error = new HttpError('users-app: Could not find this route.', 404);
   throw error;
 });
 

@@ -28,8 +28,10 @@ const getHashedPassword = async (password) => {
     );
     return response.data.hashed;
   } catch (err) {
+    const message = (err.response && err.response.data && err.response.data.message)
+      || 'users-api: Failed to hash user password';
     const code = (err.response && err.response.status) || 500;
-    createAndThrowError(err.message || 'Failed to create user.', code);
+    createAndThrowError(message, code);
   }
 };
 
@@ -47,8 +49,10 @@ const getTokenForUser = async (password, hashedPassword, uid) => {
     );
     return response.data.token;
   } catch (err) {
+    const message = (err.response && err.response.data && err.response.data.message)
+      || 'users-api: Failed to create user token.';
     const code = (err.response && err.response.status) || 500;
-    createAndThrowError(err.message || 'Failed to verify user.', code);
+    createAndThrowError(message, code);
   }
 };
 
@@ -60,7 +64,8 @@ const getUsers = async (req, res, next) => {
   try {
     users = await User.find({}, '-password');
   } catch (err) {
-    return next(new HttpError('Fetching users failed, please try again later.', 500));
+    console.log('users-api: Fetching users failed');
+    return next(new HttpError('users-api: Fetching users failed, please try again later.', 500));
   }
 
   res.json({ users: users.map(user => user.toObject({ getters: true })) });
@@ -76,6 +81,7 @@ const registerUser = async (req, res, next) => {
   // }
   // console.log(`${req.session.views} registration(s)`);
 
+  // -------  Debugging
   // console.log('Print req.file.path');
   // console.log(req.file.path);
 
@@ -87,42 +93,39 @@ const registerUser = async (req, res, next) => {
   // console.log('Print obj');
   // console.log(obj);
   // console.log(obj.email);
+  // -------- End debugging
 
   // validate inputs
-  // console.log('Validating data in req.body');
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log('Validation of req.body failed');
-    console.log(errors);
-    return next(new HttpError('Invalid inputs passed, please check your data.', 422));
+  const formErrors = validationResult(req);
+  if (!formErrors.isEmpty()) {
+    console.log('users-api: Validation of req.body failed');
+    console.log(formErrors);
+    return next(new HttpError('users-api: Invalid inputs passed, please check your data.', 422));
   }
 
   // check for an existing user
-  // console.log('Getting data from req.body');
   try {
     // const { name, email, password } = req.body;  // DOES NOT WORK!! (10/8/21)
     name = req.body.name;
     email = req.body.email;
     password = req.body.password;
- } catch (err) {
-    console.log('Error in req.body');
+  } catch (err) {
+    console.log('users-api: Error in input data (req.body)');
     console.log(err);
-    return next(new HttpError('Signing up user failed, please try again.', 500));
+    return next(new HttpError('users-api: Error in input data.', 500));
   }
-  // console.log(`name: ${name} email: ${email} password: ${password}`);
 
   let existingUser;
   try {
-    // console.log('Checking for existing user');
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    console.log('Error checking for existing user');
+    console.log('users-api: Error checking for existing user');
     console.log(err);
-    return next(new HttpError('Signing up failed, please try again later.', 500));
+    return next(new HttpError('users-api: Signing up failed, please try again later.', 500));
   }
   if (existingUser) {
-    console.log('Existing user found');
-    return next(new HttpError('User exists already, please login instead.', 422));
+    console.log('users-api: Existing user found');
+    return next(new HttpError('users-api: User exists already, please login instead.', 422));
   }
 
   // hash the user's password
@@ -131,50 +134,50 @@ const registerUser = async (req, res, next) => {
     // console.log('Hashing password');
     hashedPassword = await getHashedPassword(password);
   } catch (err) {
-    console.log('Password hashing failed');
+    console.log('users-api: Password hashing failed');
     console.log(err);
-    return next(err);
+    return next(HttpError('users-api: User password hashing failed, please try again.', 500));
   }
 
+  // for debugging
+  const image = "uploads/images/172c72ad-36c9-46d3-85c2-639f1b5a6e16.jpeg";
+  // for production
+  // const image = req.file.path;
+
   // create a new User object
-  // console.log('Create new User object');
   const currDate = new Date();
   const createdUser = new User({
     name,
     email,
     password: hashedPassword,
-    image: req.file.path,
+    image: image,
     type: "standard",
     active: true,
     dateAdded: currDate,
-    lastLogin: currDate
+    lastLogin: currDate,
+    courses: []
   });
 
   // save User to the db
   try {
-    // console.log('Trying to save new User object');
     await createdUser.save();
   } catch (err) {
-    console.log('Error saving new User object');
-    console.log(err);
-    return next(new HttpError('Signing up user failed, please try again.', 500));
+    console.log('users-api: Error saving new User object');
+    return next(new HttpError('users-api: Signing up user failed, please try again.', 500));
   }
-
-  // console.log("Created new user!");
 
   // get a new JWT token for the new user's session
   let token;
   try {
-    // console.log('Get token for user');
     token = await getTokenForUser(
       password,
       createdUser.password,
-      createdUser.name
+      createdUser.id
     );
   } catch (err) {
-    console.log("Create token error");
+    console.log("users-api: Create token error");
     console.log(err);
-    return next(err);
+    return next(HttpError('users-api: Create token error, please try again.', 500));
   }
 
   res.status(201).json({
@@ -200,36 +203,37 @@ const loginUser = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
-    return next(new HttpError('Logging in failed, please try again later.', 500));
+    console.log('users-api: Logging in failed');
+    return next(new HttpError('users-api: Logging in failed, please try again later.', 500));
   }
 
   // error if user does not exist
   if (!existingUser) {
-    return next(new HttpError('Invalid credentials, could not log you in.', 403));
+    console.log('users-api: User not found');
+    return next(new HttpError('users-api: User not found, could not log you in.', 403));
   }
 
-  // get new session token for user
+  // get (new) session token for user
   let token;
   try {
     token = await getTokenForUser(
       password,
       existingUser.password,
-      existingUser.name
+      existingUser.id
     );
   } catch (err) {
-    return next(err);
+    console.log('users-api: Get token for user failed');
+    return next(HttpError('users-api: Get token for user failed, please try again.', 500));
   }
 
   // update last login data
   const currDate = new Date();
   existingUser.lastLogin = currDate;
   try {
-    // console.log('Trying to update User object');
     await existingUser.save();
   } catch (err) {
-    console.log('Error updating User object');
-    console.log(err);
-    return next(new HttpError('Updating user lastLogin failed.', 500));
+    console.log('users-api: Error updating user lastLogin');
+    return next(new HttpError('users-api: Error updating user lastLogin.', 500));
   }
 
   // return userid, email and login token
