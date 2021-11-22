@@ -1,6 +1,7 @@
 // users-api: main app
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 const express = require("express");
 const mongoose = require('mongoose');
@@ -49,12 +50,18 @@ app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 // handle CORS
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Origin',
+    '*'
+  );
   res.setHeader(
     'Access-Control-Allow-Headers',
     'Origin, X-Requested-With, Content-Type, Accept, Authorization'
   );
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+  res.setHeader(
+    'Access-Control-Allow-Methods',
+    'GET, POST'
+  );
   next();
 });
 
@@ -103,8 +110,24 @@ mongoose.connect(
       console.log(err);
     } else {
       console.log('Successfully connected to MongoDB');
-      console.log(`Listening on port ${port}`);
-      app.listen(port);
+      // console.log(`Listening on port ${port}`);
+      // app.listen(port);
+
+      // Create an HTTPS listener that points to the express app
+      // Use a callback fn to tell when the server is created
+      https
+        .createServer(
+          // Provide the private and public key to the server by reading each
+          // file's content using readFileSync
+          {
+            key: fs.readFileSync('ssl/key.pem'),
+            cert: fs.readFileSync('ssl/cert.pem')
+          },
+          app
+        )
+        .listen(port, () => {
+          console.log(`HTTPS server is running at port ${port}`);
+        });
     }
   }
 );
