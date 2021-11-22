@@ -103,7 +103,7 @@ const registerUser = async (req, res, next) => {
     return next(new HttpError('users-api: Invalid inputs passed, please check your data.', 422));
   }
 
-  // check for an existing user
+  // get inputs from validated form
   try {
     // const { name, email, password } = req.body;  // DOES NOT WORK!! (10/8/21)
     name = req.body.name;
@@ -115,6 +115,7 @@ const registerUser = async (req, res, next) => {
     return next(new HttpError('users-api: Error in input data.', 500));
   }
 
+  // check for an existing user
   let existingUser;
   try {
     existingUser = await User.findOne({ email: email });

@@ -122,3 +122,6 @@ env/
 .env*
 
 /uploads
+
+# openssl certificates
+ssl/
