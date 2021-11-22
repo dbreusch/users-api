@@ -24,7 +24,7 @@ const getHashedPassword = async (password) => {
   // console.log(`AUTH_API_ADDRESS = ${authApiAddress}`);
   try {
     const response = await axios.get(
-      `http://${authApiAddress}/hashed-pw/${password}`
+      `https://${authApiAddress}/hashed-pw/${password}`
     );
     return response.data.hashed;
   } catch (err) {
@@ -40,7 +40,7 @@ const getTokenForUser = async (password, hashedPassword, uid) => {
   const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
   try {
     const response = await axios.post(
-      `http://${authApiAddress}/token`,
+      `https://${authApiAddress}/token`,
       {
         password: password,
         hashedPassword: hashedPassword,
