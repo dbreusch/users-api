@@ -125,3 +125,5 @@ env/
 
 # openssl certificates
 ssl/
+
+.DS_Store

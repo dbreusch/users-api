@@ -22,6 +22,7 @@ dotenv.config();
 const getHashedPassword = async (password) => {
   const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
   // console.log(`AUTH_API_ADDRESS = ${authApiAddress}`);
+  // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   try {
     const response = await axios.get(
       `https://${authApiAddress}/hashed-pw/${password}`
@@ -38,6 +39,8 @@ const getHashedPassword = async (password) => {
 // get a JWT token from auth-api
 const getTokenForUser = async (password, hashedPassword, uid) => {
   const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
+  // console.log(`AUTH_API_ADDRESS = ${authApiAddress}`);
+  // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
   try {
     const response = await axios.post(
       `https://${authApiAddress}/token`,
@@ -137,7 +140,7 @@ const registerUser = async (req, res, next) => {
   } catch (err) {
     console.log('users-api: Password hashing failed');
     console.log(err);
-    return next(HttpError('users-api: User password hashing failed, please try again.', 500));
+    return next(new HttpError('users-api: User password hashing failed, please try again.', 500));
   }
 
   // for debugging
@@ -178,7 +181,7 @@ const registerUser = async (req, res, next) => {
   } catch (err) {
     console.log("users-api: Create token error");
     console.log(err);
-    return next(HttpError('users-api: Create token error, please try again.', 500));
+    return next(new HttpError('users-api: Create token error, please try again.', 500));
   }
 
   res.status(201).json({
@@ -224,7 +227,8 @@ const loginUser = async (req, res, next) => {
     );
   } catch (err) {
     console.log('users-api: Get token for user failed');
-    return next(HttpError('users-api: Get token for user failed, please try again.', 500));
+    // console.log(err);
+    return next(new HttpError('users-api: Get token for user failed, please try again.', 500));
   }
 
   // update last login data
