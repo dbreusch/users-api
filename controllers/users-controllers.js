@@ -144,9 +144,9 @@ const registerUser = async (req, res, next) => {
   }
 
   // for debugging
-  const image = "uploads/images/172c72ad-36c9-46d3-85c2-639f1b5a6e16.jpeg";
+  // const image = "uploads/images/172c72ad-36c9-46d3-85c2-639f1b5a6e16.jpeg";
   // for production
-  // const image = req.file.path;
+  const image = req.file.path;
 
   // create a new User object
   const currDate = new Date();
