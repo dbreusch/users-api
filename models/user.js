@@ -16,6 +16,7 @@ const userSchema = new Schema({
   active: { type: Boolean, required: false },
   dateAdded: { type: Date, required: false },
   lastLogin: { type: Date, required: false },
+  isAdmin: { type: Boolean, required: false},
   courses: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Course' }]
 });
 

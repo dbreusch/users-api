@@ -159,6 +159,7 @@ const registerUser = async (req, res, next) => {
     active: true,
     dateAdded: currDate,
     lastLogin: currDate,
+    isAdmin: false,
     courses: []
   });
 
@@ -187,6 +188,7 @@ const registerUser = async (req, res, next) => {
   res.status(201).json({
     userId: createdUser.id,
     email: createdUser.email,
+    isAdmin: existingUser.isAdmin,
     token: token
   });
 };
@@ -245,6 +247,7 @@ const loginUser = async (req, res, next) => {
   res.status(201).json({
     userId: existingUser.id,
     email: existingUser.email,
+    isAdmin: existingUser.isAdmin,
     token: token
   });
 };
