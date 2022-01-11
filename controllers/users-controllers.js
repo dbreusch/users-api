@@ -37,7 +37,7 @@ const getHashedPassword = async (password) => {
 };
 
 // get a JWT token from auth-api
-const getTokenForUser = async (password, hashedPassword, uid) => {
+const getTokenForUser = async (password, hashedPassword, uid, isAdmin) => {
   const authApiAddress = getEnvVar('AUTH_API_ADDRESS');
   // console.log(`AUTH_API_ADDRESS = ${authApiAddress}`);
   // process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -47,7 +47,8 @@ const getTokenForUser = async (password, hashedPassword, uid) => {
       {
         password: password,
         hashedPassword: hashedPassword,
-        userId: uid
+        userId: uid,
+        isAdmin: isAdmin
       }
     );
     return response.data.token;
@@ -177,7 +178,8 @@ const registerUser = async (req, res, next) => {
     token = await getTokenForUser(
       password,
       createdUser.password,
-      createdUser.id
+      createdUser.id,
+      createdUser.isAdmin
     );
   } catch (err) {
     console.log("users-api: Create token error");
@@ -188,7 +190,7 @@ const registerUser = async (req, res, next) => {
   res.status(201).json({
     userId: createdUser.id,
     email: createdUser.email,
-    isAdmin: existingUser.isAdmin,
+    isAdmin: createdUser.isAdmin,
     token: token
   });
 };
@@ -225,7 +227,8 @@ const loginUser = async (req, res, next) => {
     token = await getTokenForUser(
       password,
       existingUser.password,
-      existingUser.id
+      existingUser.id,
+      existingUser.isAdmin
     );
   } catch (err) {
     console.log('users-api: Get token for user failed');
